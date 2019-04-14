@@ -1,0 +1,62 @@
+Sub CSV整形()
+    'Dim AddSheet As Worksheet '追加されるワークシートの定義(オプション)
+    
+'1.対象のCSVを開く
+    Dim CsvFileName As String
+    CsvFileName = Application.GetOpenFilename("テキスト ファイル,*.csv?")
+    Workbooks.Open CsvFileName
+    Worksheets(1).Name = "元データ" 'CSVのシート名を変更
+    
+    'Excelファイルを同時に開く（オプション）
+    'Dim ExcelFileName As String
+    'ExcelFileName = Application.GetOpenFilename("Excel ファイル,*work2*.xls?")
+    'Workbooks.Open ExcelFileName
+    
+'2.フィルターを掛ける
+    ActiveSheet.Range("$A$1:$E$100").AutoFilter Field:=4, _
+      Criteria1:="<>"  'コンピュータ名。レンジは全て変更する。
+    ActiveSheet.Range("$A$1:$E$100").AutoFilter Field:=5, _
+      Criteria1:=Array("windows 10", "windows 7"), _
+      Operator:=xlFilterValues 'OS名称
+    ActiveSheet.Range("$A$1:$E$6").AutoFilter Field:=1, _
+    Criteria1:="<>ゴルフ", Operator:=xlAnd 'ゴルフ含まない
+    
+ '3.ワークシートを追加し、値をコピペする
+    Sheets.Add After:=ActiveSheet
+    ActiveSheet.Name = "Add1"
+    Sheets(("元データ")).Select
+    Columns("D:D").Select
+    Selection.Copy
+    Sheets(("Add1")).Select
+    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
+        
+    Sheets(("元データ")).Select
+    Columns("E:E").Select
+    Application.CutCopyMode = False
+    Selection.Copy
+    Sheets(("Add1")).Select
+    Range("B1").Select
+    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
+        
+    Sheets(("元データ")).Select
+    Columns("A:A").Select
+    Application.CutCopyMode = False
+    Selection.Copy
+    Sheets(("Add1")).Select
+    Range("C1").Select
+    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
+    
+    Cells.Select
+    Selection.Copy
+    
+'整形したデータを別ファイルにコピペする
+    Workbooks("work2.xlsx").Activate
+    Sheets("対象シート").Select
+    Range("A1").Select
+    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
+    
+End Sub
